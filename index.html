@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Roblox Player Dashboard</title>
+  <style>
+    body { font-family: Arial; text-align: center; background: #f5f5f5; }
+    table { margin: auto; width: 80%; border-collapse: collapse; background: white; }
+    th, td { padding: 8px; border: 1px solid #ddd; }
+    .active { color: green; }
+    .offline { color: gray; }
+  </style>
+</head>
+<body>
+  <h1>🌸 Roblox Player Dashboard</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Candy Blossom</th>
+        <th>Inventory Value</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="playerTable"></tbody>
+  </table>
+
+  <script>
+    async function loadData() {
+      const res = await fetch('/list');
+      const players = await res.json();
+      const now = Date.now();
+      const tbody = document.getElementById('playerTable');
+      tbody.innerHTML = '';
+
+      Object.entries(players).forEach(([username, data]) => {
+        const isActive = now - data.lastSeen < 60000;
+        const row = \`
+          <tr>
+            <td>\${username}</td>
+            <td>\${data.candyBlossom}</td>
+            <td>₵\${data.inventoryValue.toLocaleString()}</td>
+            <td class="\${isActive ? 'active' : 'offline'}">\${isActive ? '✅ Active' : '❌ Offline'}</td>
+          </tr>\`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    setInterval(loadData, 5000);
+    loadData();
+  </script>
+</body>
+</html>
